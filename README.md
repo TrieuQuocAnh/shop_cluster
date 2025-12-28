@@ -44,8 +44,9 @@ thu được 1,794 luật kết hợp
 ### 4.2 Chọn luật
 - TOP_K_RULES = 200 (không dùng toàn bộ luật vì gây nhiễu và làm vector đặc trưng quá thưa)
 - SORT_RULES_BY = "lift" (ưu tiên sức mạnh mối quan hệ)
-- Lift range: 20.116 - 74.567
-- Confidence range: 0.30 - 0.90 
+- Lift range: 20.04 - 74.57
+- Confidence range: 0.35 - 0.98
+- Support range: 0.01 - 0.02
 
 | # | Antecedent | Consequent | Support | Confidence | Lift |
 |---|------------|------------|---------|------------|------|
