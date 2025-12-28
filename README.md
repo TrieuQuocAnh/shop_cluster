@@ -15,9 +15,15 @@
 
 ##  Quy trình 
 Tiền xử lý và khai phá luật
+
    ↓
+   
 Trích xuất đặc trưng từ luật
+
    ↓
+   
 Phân cụm
+
    ↓
+   
 Diễn giải và trực quan hóa
