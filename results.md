@@ -6,7 +6,137 @@ Rule-only	USE_RFM = False
 Rule + RFM	USE_RFM = True
 3. Top-K nhỏ vs Top-K lớn
 
+# So sánh kết luận
+1️⃣ Binary rules vs Weighted rules (WEIGHTING = none vs lift)
+So sánh TH1 vs TH2
+Thiết lập	            Silhouette tốt nhất (k=2)	Silhouette k>2
+Binary (TH1)	        0.704	                    ~0.47–0.48
+Weighted – lift (TH2)	0.855	                    ~0.48–0.58
 
+Nhận xét
+
+Weighted rules vượt trội rõ rệt
+
+k=2: +0.15 silhouette
+
+k=3: 0.583 vs 0.483
+
+Lift giữ lại thông tin độ mạnh của luật, giúp:
+
+Khoảng cách giữa khách hàng phản ánh mức độ liên kết mua hàng, không chỉ có/không
+
+Giảm nhiễu từ các luật phổ biến nhưng yếu
+
+Kết luận 1
+
+Weighted rules (lift) tốt hơn Binary rules cả về chất lượng phân cụm lẫn ý nghĩa hành vi mua hàng.
+
+2️⃣ Rule-only vs Rule + RFM
+So sánh TH2 vs TH3
+Thiết lập	        Silhouette k=2	Silhouette k=3–7
+Rule-only (TH2)	    0.8546	        ~0.48–0.58
+Rule + RFM (TH3)	0.8541	        ~0.49–0.58 (ổn định hơn)
+
+Nhận xét
+
+k=2 gần như không đổi → luật chi phối mạnh
+
+Nhưng khi k ≥ 5, Rule+RFM:
+
+Silhouette cao hơn nhẹ
+
+Thứ hạng k ổn định hơn
+
+RFM giúp:
+
+Phân biệt khách hàng có luật giống nhau nhưng giá trị khác nhau
+
+Tạo persona rõ ràng hơn (VIP, mua thường xuyên, mua rải rác…)
+
+Kết luận 2
+
+Rule + RFM không làm giảm silhouette nhưng tăng khả năng diễn giải & giá trị kinh doanh → nên dùng.
+
+3️⃣ Top-K nhỏ vs Top-K lớn
+Tổng hợp nhanh
+TH	TOP_K	    Silhouette cao nhất	Nhận định
+TH6	50	~0.99	❌ Quá tốt → nghi over-separation
+TH4	100	0.92	⭐ Rất tốt
+TH3	200	0.85	Tốt
+TH5	400	0.82	Bắt đầu nhiễu
+TH7	800	0.79	❌ Nhiễu, giảm mạnh
+
+Phân tích sâu
+
+Top-K quá nhỏ (50):
+
+Silhouette ~1 → cụm cách ly cực mạnh
+
+Nhưng:
+
+Cụm dễ bị chi phối bởi vài luật rất mạnh
+
+Thiếu đa dạng hành vi
+
+Top-K quá lớn (400–800):
+
+Nhiều luật yếu, trùng lặp
+
+Khoảng cách khách hàng bị “làm loãng”
+
+Khoảng tối ưu: 100–200 luật
+
+Kết luận 3
+
+TOP_K_RULES ∈ [100, 200] là cân bằng tốt nhất giữa chất lượng & khả năng diễn giải.
+
+4️⃣ Đánh giá cấu hình FINAL
+FINAL CONFIG
+TOP_K_RULES = 200
+WEIGHTING = lift
+USE_RFM = True
+MIN_ANTECEDENT_LEN = 2
+
+Kết quả
+k	Silhouette
+2	0.954
+3–6	~0.94
+≥7	giảm dần
+Đánh giá
+
+MIN_ANTECEDENT_LEN = 2:
+
+Loại luật đơn giản → luật giàu ngữ nghĩa hơn
+
+Silhouette:
+
+Cao nhưng không cực đoan như TH6
+
+Giảm hợp lý khi tăng k → mô hình ổn định
+
+Rất phù hợp cho:
+
+Phân tích hành vi mua
+
+Gắn nhãn persona
+
+Trình bày học thuật
+
+Kết luận FINAL
+
+Cấu hình final là lựa chọn tốt nhất tổng thể: chất lượng cao, ổn định, dễ diễn giải và có ý nghĩa kinh doanh.
+
+5️⃣ Tổng kết ngắn gọn 
+
+Weighted rules (lift) cải thiện đáng kể chất lượng phân cụm so với binary rules.
+
+Việc kết hợp RFM không làm giảm silhouette nhưng giúp cụm có ý nghĩa kinh doanh rõ ràng hơn.
+
+Số lượng luật Top-K ảnh hưởng mạnh đến chất lượng: quá ít gây over-separation, quá nhiều gây nhiễu.
+
+Cấu hình TOP_K = 200, WEIGHTING = lift, USE_RFM = True, antecedent ≥ 2 đạt cân bằng tối ưu giữa hiệu năng và khả năng diễn giải.
+
+# Chi tiết trường hợp
 ## TH1: baseline
 notebooks\runs\clustering_from_rules_baseline_run.ipynb
 
