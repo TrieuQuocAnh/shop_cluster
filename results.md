@@ -89,6 +89,100 @@ Rule + RFM	USE_RFM = True
 ### ✅ Kết luận 3
 > `TOP_K_RULES ∈ [100, 200]` là **cân bằng tốt nhất** giữa chất lượng và khả năng diễn giải.
 
+
+
+# So sánh MIN_ANTECEDENT_LEN = 1 vs MIN_ANTECEDENT_LEN = 2
+
+## 1️⃣ Thiết lập so sánh
+
+* **TH3 / TH4 / TH5 (trước đó)**
+  `MIN_ANTECEDENT_LEN = 1`
+* **TH final**
+  `MIN_ANTECEDENT_LEN = 2`
+
+Các tham số khác giữ nguyên:
+
+* `WEIGHTING = "lift"`
+* `USE_RFM = True`
+* `RFM_SCALE = True`
+* `RULE_SCALE = False`
+* `TOP_K_RULES ≈ 200`
+
+---
+
+## 2️⃣ So sánh Silhouette score
+
+| Thiết lập | MIN_ANTECEDENT_LEN | Silhouette k = 2 | Silhouette k = 3–6 | Độ ổn định  |
+| --------- | ------------------ | ---------------- | ------------------ | ----------- |
+| TH3       | 1                  | ~0.854           | ~0.48 – 0.58       | Trung bình  |
+| TH4 (100) | 1                  | ~0.92            | ~0.68 – 0.71       | Tốt         |
+| TH final  | **2**              | **0.954**        | **~0.94 (k=3–6)**  | **Rất cao** |
+
+### Nhận xét
+
+* Khi tăng `MIN_ANTECEDENT_LEN` từ **1 → 2**:
+
+  * Silhouette **tăng mạnh** ở mọi k
+  * Đặc biệt với `k = 3–6`: từ ~0.58 → **~0.94**
+* Khoảng chênh lệch giữa các k **giảm đáng kể** → phân cụm **ổn định hơn**
+
+---
+
+## 3️⃣ Phân tích nguyên nhân
+
+### 1️⃣ Loại bỏ luật quá đơn giản (1-item antecedent)
+
+* Antecedent độ dài 1 thường là sản phẩm bán chạy hoặc hành vi phổ biến
+* Những luật này xuất hiện ở nhiều khách hàng → **giảm khả năng phân biệt cụm**
+* Khi `MIN_ANTECEDENT_LEN = 2`: chỉ giữ các luật phản ánh **hành vi kết hợp thực sự**, giảm nhiễu
+
+### 2️⃣ Luật có độ đặc trưng hành vi cao hơn
+
+* Luật dạng `{A, B} → {C}` mang nhiều thông tin hơn:
+
+  * Thói quen mua theo combo
+  * Logic tiêu dùng
+  * Bối cảnh sử dụng sản phẩm
+* Khoảng cách giữa khách hàng phản ánh **pattern mua hàng**, không chỉ tần suất
+
+### 3️⃣ Tăng khả năng diễn giải (Interpretability)
+
+| MIN_ANTECEDENT_LEN = 1 | MIN_ANTECEDENT_LEN = 2    |
+| ---------------------- | ------------------------- |
+| “Mua sữa → mua bánh”   | “Mua sữa + bánh → mua bơ” |
+| Chung chung            | Có ngữ cảnh rõ            |
+| Khó gắn persona        | Dễ đặt tên cụm            |
+
+* Cụm khách hàng dễ diễn giải thành:
+
+  * “Khách mua combo bữa sáng”
+  * “Khách mua đồ nấu ăn tại nhà”
+  * “Khách mua theo dịp”
+
+---
+
+## 4️⃣ Lưu ý & đánh đổi
+
+| Ưu điểm            | Nhược điểm                     |
+| ------------------ | ------------------------------ |
+| Silhouette rất cao | Số luật giảm                   |
+| Cụm rõ ràng        | Có thể bỏ sót hành vi đơn giản |
+| Persona dễ đặt tên | Cần đủ dữ liệu để sinh luật    |
+
+* Trong bài toán **phân cụm để phân tích hành vi & marketing**, đánh đổi này là **hợp lý**
+
+---
+
+## 5️⃣ Kết luận
+
+> Việc tăng `MIN_ANTECEDENT_LEN` từ **1 lên 2** giúp:
+>
+> * **Cải thiện mạnh chất lượng phân cụm**
+> * **Giảm nhiễu từ luật phổ biến**
+> * **Tăng khả năng diễn giải hành vi khách hàng**
+>
+> Do đó, **`MIN_ANTECEDENT_LEN = 2` là lựa chọn tối ưu** cho cấu hình cuối cùng của mô hình.
+
 ---
 
 
